@@ -38,7 +38,7 @@ export default function StockPage() {
       
       // Fetch stock data
       console.log('Fetching stock data...');
-      const stockResponse = await fetch('http://localhost:8001/api/stock-data', {
+      const stockResponse = await fetch('https://replance-frontend.onrender.com/api/stock-data', {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -54,7 +54,7 @@ export default function StockPage() {
 
       // Fetch events data
       console.log('Fetching events data...');
-      const eventsResponse = await fetch('http://localhost:8001/api/events', {
+      const eventsResponse = await fetch('https://replance-frontend.onrender.com/api/events', {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -71,7 +71,7 @@ export default function StockPage() {
       // After events data is loaded, fetch the summary
       if (eventsData) {
         setSummaryLoading(true);
-        const summaryResponse = await fetch('http://localhost:8001/api/events-summary', {
+        const summaryResponse = await fetch('https://replance-frontend.onrender.com/api/events-summary', {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
