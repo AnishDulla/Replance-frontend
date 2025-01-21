@@ -21,8 +21,10 @@ export default function Home() {
         completely open-source.
       </SectionTitle>
 
-      <Benefits data={benefitOne} />
-      <Benefits imgPos="right" data={benefitTwo} />
+      <div id="features">
+        <Benefits data={benefitOne} />
+        <Benefits imgPos="right" data={benefitTwo} />
+      </div>
 
       <SectionTitle
         preTitle="Watch a video"
