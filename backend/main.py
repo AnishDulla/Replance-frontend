@@ -8,7 +8,7 @@ import logging
 import aiohttp
 import asyncio
 import random
-from langchain_community.llms import Ollama
+from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 from langchain.chains import LLMChain
 from langchain.callbacks import StreamingStdOutCallbackHandler
@@ -66,10 +66,9 @@ user_agents = [
 set_llm_cache(SQLiteCache(database_path=".langchain.db"))
 
 # Initialize Llama 2 with LangChain
-llm = Ollama(
-    model="llama2",
+llm = ChatOpenAI(
+    model="gpt-3.5-turbo",
     temperature=0.7,
-    callbacks=[StreamingStdOutCallbackHandler()],
 )
 
 # Create a prompt template for event analysis
