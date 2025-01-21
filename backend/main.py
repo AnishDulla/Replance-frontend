@@ -8,6 +8,7 @@ import logging
 import aiohttp
 import asyncio
 import random
+import os
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 from langchain.chains import LLMChain
@@ -65,10 +66,17 @@ user_agents = [
 # Set up caching
 set_llm_cache(SQLiteCache(database_path=".langchain.db"))
 
-# Initialize Llama 2 with LangChain
+# Get API key from environment variable
+openai_api_key = os.getenv('OPENAI_API_KEY')
+if not openai_api_key:
+    raise ValueError("No OpenAI API key found. Please set OPENAI_API_KEY environment variable")
+
+# Initialize ChatOpenAI with minimal configuration
 llm = ChatOpenAI(
-    model="gpt-3.5-turbo",
-    temperature=0.7,
+    api_key=openai_api_key,  # Changed to api_key
+    model_name="gpt-3.5-turbo",
+    streaming=True,
+    callbacks=[StreamingStdOutCallbackHandler()]
 )
 
 # Create a prompt template for event analysis
