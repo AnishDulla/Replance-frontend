@@ -24,7 +24,17 @@ app = FastAPI()
 # CORS middleware setup
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:3003", "http://localhost:8000", "http://localhost:8001"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:3002",
+        "http://localhost:3003",
+        "http://localhost:8000",
+        "http://localhost:8001",
+        "https://replance.vercel.app",  # Add your Vercel domain
+        "https://replance-frontend.vercel.app",  # Add variations of your Vercel domain
+        "*"  # Temporarily allow all origins for testing
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
