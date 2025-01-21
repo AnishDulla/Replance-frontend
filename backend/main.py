@@ -71,12 +71,10 @@ openai_api_key = os.getenv('OPENAI_API_KEY')
 if not openai_api_key:
     raise ValueError("No OpenAI API key found. Please set OPENAI_API_KEY environment variable")
 
-# Initialize ChatOpenAI with minimal configuration
+# Simplest possible initialization
 llm = ChatOpenAI(
-    api_key=openai_api_key,  # Changed to api_key
-    model_name="gpt-3.5-turbo",
-    streaming=True,
-    callbacks=[StreamingStdOutCallbackHandler()]
+    api_key=openai_api_key,
+    model_name="gpt-3.5-turbo"
 )
 
 # Create a prompt template for event analysis
