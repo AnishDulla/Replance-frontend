@@ -29,7 +29,7 @@ export function PreOrderForm({ isOpen, onClose, onSubmit }: PreOrderFormProps) {
         <DialogHeader>
           <DialogTitle>Pre-order LaunchPad</DialogTitle>
           <DialogDescription>
-            Enter your details to pre-order LaunchPad. You'll be redirected to complete your payment.
+            Enter your details to pre-order LaunchPad. You&apos;ll be redirected to complete your payment.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
