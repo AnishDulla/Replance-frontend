@@ -4,7 +4,7 @@
 
 /* Add this to ensure light background */
 body {
-  background-color: white;
+  background-color: rgb(237, 235, 223);
 }
 
 .prose {
@@ -28,5 +28,13 @@ body {
   body {
     @apply dark:bg-trueGray-900;
   }
+}
+
+@font-face {
+  font-family: 'Telegraf';
+  src: url('/fonts/Telegraf-Bold.woff2') format('woff2'),
+       url('/fonts/Telegraf-Bold.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
 }
 

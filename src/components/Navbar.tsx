@@ -11,6 +11,7 @@ export const Navbar = () => {
     "Company",
     "Blog",
     "Demo",
+    "Email Sender",
   ];
 
   const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
@@ -25,6 +26,7 @@ export const Navbar = () => {
   const getItemHref = (item: string) => {
     if (item === "Features") return "#features";
     if (item === "Demo") return "/demo";
+    if (item === "Email Sender") return "/email-sender";
     return "/";
   };
 
@@ -33,17 +35,17 @@ export const Navbar = () => {
       <nav className="container relative flex flex-wrap items-center justify-between p-8 mx-auto lg:justify-between xl:px-1">
         {/* Logo  */}
         <Link href="/">
-          <span className="flex items-center space-x-2 text-2xl font-medium text-indigo-500">
+          <span className="flex items-center space-x-2 text-2xl text-[#71797E] font-telegraf">
               <span>
                 <Image
-                  src="/img/logo.svg"
-                  width="32"
+                  src="/img/logo1.svg"
+                  width="48"
                   alt="N"
-                  height="32"
-                  className="w-8"
+                  height="48"
+                  className="w-12"
                 />
               </span>
-            <span>Nextly</span>
+            <span>RepLance</span>
           </span>
         </Link>
 
@@ -103,11 +105,11 @@ export const Navbar = () => {
           )}
         </Disclosure>
         
-        {/* menu  */}
-        <div className="hidden text-center lg:flex lg:items-center">
-          <ul className="items-center justify-end flex-1 pt-6 list-none lg:pt-0 lg:flex">
+        {/* Centered navigation with dynamic spacing */}
+        <div className="hidden lg:flex flex-1 justify-center">
+          <ul className="flex items-center space-x-8">
             {navigation.map((menu, index) => (
-              <li className="mr-3 nav__item" key={index}>
+              <li className="nav__item" key={index}>
                 <Link 
                   href={getItemHref(menu)} 
                   onClick={(e) => menu === "Features" ? handleScroll(e, 'features') : null}

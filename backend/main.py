@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from starlette.requests import Request
 from fastapi.middleware.cors import CORSMiddleware
 import requests
 from bs4 import BeautifulSoup
@@ -13,12 +14,21 @@ from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 from langchain.chains import LLMChain
 from langchain.callbacks import StreamingStdOutCallbackHandler
-from langchain.cache import SQLiteCache
+from langchain_community.cache import SQLiteCache
 from langchain.globals import set_llm_cache
+import resend
+from dotenv import load_dotenv
+from pydantic import BaseModel
+from authlib.integrations.starlette_client import OAuth
+from starlette.config import Config
+from starlette.middleware.sessions import SessionMiddleware
+import json
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+load_dotenv()  # This should be one of the first things that happens
 
 app = FastAPI()
 
@@ -97,6 +107,41 @@ analysis_chain = LLMChain(
     prompt=event_summary_prompt,
     verbose=True
 )
+
+# Initialize Resend
+resend.api_key = os.getenv('RESEND_API_KEY')
+
+# Add the email prompt template
+email_prompt = ChatPromptTemplate.from_template("""
+You are a friendly AI assistant writing a fun, personalized email. Use the following information to craft a warm, engaging message:
+
+Name: {name}
+Hobbies: {hobbies}
+Favorite Artist: {artist}
+Favorite Movie: {movie}
+
+Write a friendly email that:
+1. Greets them by name
+2. Makes interesting connections between their hobbies, favorite artist, and movie
+3. Suggests a fun activity based on their interests
+4. Ends with a warm sign-off
+
+Keep the tone light and friendly. The email should be 3-4 short paragraphs.
+""")
+
+email_chain = LLMChain(
+    llm=llm,
+    prompt=email_prompt,
+    verbose=True
+)
+
+# Add this class to define the expected request body structure
+class EmailFormData(BaseModel):
+    name: str
+    email: str
+    hobbies: str
+    artist: str
+    movie: str
 
 async def fetch_event_data(url_subA, session):
     headers = {'User-Agent': random.choice(user_agents)}
@@ -359,4 +404,192 @@ async def get_events_summary():
             
     except Exception as e:
         logger.error(f"Error generating summary: {e}")
-        return {"error": f"Failed to generate summary: {str(e)}"} 
+        return {"error": f"Failed to generate summary: {str(e)}"}
+
+@app.get("/api/test-email")
+async def test_email():
+    """Test endpoint for email functionality"""
+    test_data = EmailFormData(
+        name="Test User",
+        email="adulla10@gmail.com",  # Replace with your email
+        hobbies="coding, reading, hiking",
+        artist="Van Gogh",
+        movie="The Matrix"
+    )
+    
+    try:
+        # Reuse the send_email function
+        result = await send_email(test_data)
+        return {
+            "message": "Test email initiated",
+            "result": result
+        }
+    except Exception as e:
+        logger.error(f"Test email failed: {e}")
+        return {"error": str(e)}
+
+@app.post("/api/send-email")
+async def send_email(form_data: EmailFormData):
+    try:
+        # Generate personalized message using OpenAI
+        message = await asyncio.get_event_loop().run_in_executor(
+            None,
+            lambda: email_chain.run(
+                name=form_data.name,
+                hobbies=form_data.hobbies,
+                artist=form_data.artist,
+                movie=form_data.movie
+            )
+        )
+        
+        # Send email using Resend
+        response = resend.Emails.send({
+            "from": "onboarding@resend.dev",
+            "to": form_data.email,
+            "subject": f"A Special Message for {form_data.name}",
+            "text": message
+        })
+        
+        logger.info(f"Email sent successfully to {form_data.email}")
+        return {
+            "success": True, 
+            "message": "Email sent successfully",
+            "generated_text": message
+        }
+        
+    except Exception as e:
+        logger.error(f"Error sending email: {e}")
+        return {"success": False, "message": str(e)}
+
+# Add session middleware
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=os.getenv('SESSION_SECRET_KEY', 'your-secret-key')  # Change this!
+)
+
+# Configure OAuth
+oauth = OAuth()
+oauth.register(
+    "auth0",
+    client_id=os.getenv('AUTH0_CLIENT_ID'),
+    client_secret=os.getenv('AUTH0_CLIENT_SECRET'),
+    client_kwargs={
+        "scope": "openid profile email",  # Basic OpenID scopes
+    },
+    server_metadata_url=f'https://{os.getenv("AUTH0_DOMAIN")}/.well-known/openid-configuration'
+)
+
+# LinkedIn API endpoints
+@app.get("/api/auth/login")
+async def auth_login(request):
+    redirect_uri = request.url_for('auth_callback')
+    return await oauth.auth0.authorize_redirect(request, redirect_uri)
+
+@app.get("/api/auth/callback")
+async def auth_callback(request):
+    token = await oauth.auth0.authorize_access_token(request)
+    user = await oauth.auth0.parse_id_token(request, token)
+    request.session['user'] = dict(user)
+    return {"success": True, "user": user}
+
+@app.get("/api/auth/logout")
+async def auth_logout(request):
+    request.session.pop('user', None)
+    return {"success": True}
+
+@app.get("/api/linkedin/profile")
+async def get_linkedin_profile(request):
+    try:
+        # Get access token from session
+        user = request.session.get('user')
+        if not user:
+            return {"error": "Not authenticated"}
+
+        # Get LinkedIn access token from Auth0 user
+        linkedin_token = user.get('https://api.linkedin.com/access_token')
+        if not linkedin_token:
+            return {"error": "No LinkedIn access token"}
+
+        # Make request to LinkedIn API
+        headers = {
+            'Authorization': f'Bearer {linkedin_token}',
+            'Accept': 'application/json',
+        }
+        
+        # Get basic profile
+        profile_response = requests.get(
+            'https://api.linkedin.com/v2/me',
+            headers=headers
+        )
+        
+        # Get positions
+        positions_response = requests.get(
+            'https://api.linkedin.com/v2/positions',
+            headers=headers,
+            params={'q': 'member'}
+        )
+        
+        # Get education
+        education_response = requests.get(
+            'https://api.linkedin.com/v2/educations',
+            headers=headers,
+            params={'q': 'member'}
+        )
+
+        return {
+            "profile": profile_response.json(),
+            "positions": positions_response.json(),
+            "education": education_response.json()
+        }
+
+    except Exception as e:
+        logger.error(f"Error fetching LinkedIn profile: {e}")
+        return {"error": str(e)}
+
+# Add this to your existing email generation endpoint
+@app.post("/api/generate-linkedin-email")
+async def generate_linkedin_email(
+    request: Request,
+    profile_data: dict
+):
+    try:
+        # Create a prompt template for LinkedIn data
+        linkedin_prompt = ChatPromptTemplate.from_template("""
+        You are writing a personalized email based on someone's LinkedIn profile.
+
+        Profile Information:
+        Name: {name}
+        Current Position: {current_position}
+        Company: {company}
+        Experience: {experience}
+        Education: {education}
+
+        Write an engaging email that:
+        1. Acknowledges their professional background
+        2. Makes interesting connections between their experiences
+        3. Suggests potential career opportunities or growth areas
+        4. Ends with a professional call to action
+
+        Keep the tone professional but friendly.
+        """)
+
+        # Generate the email content
+        message = await asyncio.get_event_loop().run_in_executor(
+            None,
+            lambda: analysis_chain.run(
+                name=profile_data.get('name'),
+                current_position=profile_data.get('current_position'),
+                company=profile_data.get('company'),
+                experience=profile_data.get('experience'),
+                education=profile_data.get('education')
+            )
+        )
+
+        return {
+            "success": True,
+            "generated_text": message
+        }
+
+    except Exception as e:
+        logger.error(f"Error generating LinkedIn email: {e}")
+        return {"error": str(e)} 
