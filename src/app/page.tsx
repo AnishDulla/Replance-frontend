@@ -52,7 +52,15 @@ export default function Home() {
       </SectionTitle>
 
       <Faq/> */}
-      <Pricing/>
+      <div id="pricing">
+        <SectionTitle
+          preTitle="Pricing"
+          title="Choose the plan that suits you best"
+        >
+        </SectionTitle>
+        <Pricing />
+      </div>
+
     </Container>
   );
 }

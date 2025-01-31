@@ -5,11 +5,9 @@ import { Disclosure } from "@headlessui/react";
 
 export const Navbar = () => {
   const navigation = [
-    "Product",
     "Features",
-    "Pricing",
     "Testimonials",
-    "Blog",
+    "Pricing",
     "Demo",
     "Email Sender",
   ];
@@ -26,7 +24,7 @@ export const Navbar = () => {
   const getItemHref = (item: string) => {
     if (item === "Product") return "/";
     if (item === "Features") return "#features";
-    if (item === "Pricing") return "/";
+    if (item === "Pricing") return "#pricing";
     if (item === "Testimonials") return "#testimonials";
     if (item === "Blog") return "/";
     if (item === "Demo") return "/demo";
@@ -65,6 +63,8 @@ export const Navbar = () => {
                       ? handleScroll(e, 'features')
                       : menu === "Testimonials"
                       ? handleScroll(e, 'testimonials')
+                      : menu === "Pricing"
+                      ? handleScroll(e, 'pricing')
                       : null
                   }
                   className="text-base text-gray-600 hover:text-gray-900"
@@ -120,6 +120,8 @@ export const Navbar = () => {
                             ? handleScroll(e, 'features')
                             : item === "Testimonials"
                             ? handleScroll(e, 'testimonials')
+                            : item === "Pricing"
+                            ? handleScroll(e, 'pricing')
                             : null
                         }
                         className="w-full px-4 py-2 -ml-4 text-gray-500 rounded-md hover:text-indigo-500 focus:text-indigo-500 focus:bg-indigo-100 focus:outline-none"
