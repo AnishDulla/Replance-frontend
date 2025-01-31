@@ -88,7 +88,7 @@ export const Hero = () => {
 
           <div className="flex flex-wrap justify-center gap-5 mt-10 md:justify-around">
             <div className="pt-2 text-gray-400 dark:text-gray-400">
-              <AmazonLogo />
+              <FreelancerLogo />
             </div>
             <div className="text-gray-400 dark:text-gray-400">
               <VerizonLogo />
@@ -113,6 +113,15 @@ export const Hero = () => {
     </>
   );
 }
+
+const FreelancerLogo = () => (
+  <Image
+    src="/img/brands/freelancer.svg"
+    alt="Freelancer"
+    width={150}
+    height={50}
+  />
+);
 
 function AmazonLogo() {
   return (

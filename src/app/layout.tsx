@@ -25,7 +25,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Navbar />
-        <div>{children}</div>
+        <main className="pt-24">
+          <div>{children}</div>
+        </main>
         <Footer />
         <PopupWidget />
       </body>

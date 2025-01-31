@@ -8,7 +8,7 @@ export const Navbar = () => {
     "Product",
     "Features",
     "Pricing",
-    "Company",
+    "Testimonials",
     "Blog",
     "Demo",
     "Email Sender",
@@ -25,9 +25,9 @@ export const Navbar = () => {
   // Helper function to get the correct href for navigation items
   const getItemHref = (item: string) => {
     if (item === "Product") return "/";
-    if (item === "Features") return "/features";
+    if (item === "Features") return "#features";
     if (item === "Pricing") return "/";
-    if (item === "Company") return "/";
+    if (item === "Testimonials") return "#testimonials";
     if (item === "Blog") return "/";
     if (item === "Demo") return "/demo";
     if (item === "Email Sender") return "/email-sender";
@@ -60,7 +60,13 @@ export const Navbar = () => {
               <li key={index}>
                 <Link 
                   href={getItemHref(menu)} 
-                  onClick={(e) => menu === "Features" ? handleScroll(e, 'features') : null}
+                  onClick={(e) => 
+                    menu === "Features" 
+                      ? handleScroll(e, 'features')
+                      : menu === "Testimonials"
+                      ? handleScroll(e, 'testimonials')
+                      : null
+                  }
                   className="text-base text-gray-600 hover:text-gray-900"
                 >
                   {menu}
@@ -109,7 +115,13 @@ export const Navbar = () => {
                       <Link 
                         key={index} 
                         href={getItemHref(item)} 
-                        onClick={(e) => item === "Features" ? handleScroll(e, 'features') : null}
+                        onClick={(e) => 
+                          item === "Features" 
+                            ? handleScroll(e, 'features')
+                            : item === "Testimonials"
+                            ? handleScroll(e, 'testimonials')
+                            : null
+                        }
                         className="w-full px-4 py-2 -ml-4 text-gray-500 rounded-md hover:text-indigo-500 focus:text-indigo-500 focus:bg-indigo-100 focus:outline-none"
                       >
                         {item}
