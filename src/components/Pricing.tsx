@@ -92,15 +92,12 @@ export function Pricing() {
   const currentPricing = pricingData[billingPeriod]
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 py-2">
       {/* Early Bird Banner */}
       <div className="text-center mb-8">
         <span className="inline-block bg-indigo-100 text-indigo-800 text-sm font-medium px-4 py-2 rounded-full mb-3">
           🎉 Early Bird Special
         </span>
-        <h3 className="text-2xl font-medium text-gray-900 mb-2">
-          Launch Pricing - Save 40% Today
-        </h3>
         <p className="text-gray-600">
           Get in early and lock in our best prices.
         </p>

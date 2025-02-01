@@ -55,7 +55,7 @@ export default function Home() {
       <div id="pricing">
         <SectionTitle
           preTitle="Pricing"
-          title="Choose the plan that suits you best"
+          title="Launch Pricing - Save 75% Today"
         >
         </SectionTitle>
         <Pricing />
